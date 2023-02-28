@@ -4,6 +4,8 @@ import com.github.pavelvashkevich.model.Book;
 import com.github.pavelvashkevich.model.Person;
 import com.github.pavelvashkevich.repositories.BooksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class BooksService {
 
+    private static final String YEAR_OF_PUBLISH_PROP_NAME = "yearOfPublish";
+
     private final BooksRepository booksRepository;
 
     @Autowired
@@ -23,6 +27,19 @@ public class BooksService {
 
     public List<Book> findAll() {
         return booksRepository.findAll();
+    }
+
+    public List<Book> findAll(int page, int booksPerPage) {
+        return booksRepository.findAll(PageRequest.of(page, booksPerPage)).getContent();
+    }
+
+    public List<Book> findAllSortByYearOfPublish() {
+        return booksRepository.findAll(Sort.by(YEAR_OF_PUBLISH_PROP_NAME));
+    }
+
+    public List<Book> findAllSortByYearOfPublish(int page, int booksPerPage) {
+        return booksRepository.findAll(
+                PageRequest.of(page, booksPerPage,Sort.by(YEAR_OF_PUBLISH_PROP_NAME))).getContent();
     }
 
     public Book findOne(int id) {
