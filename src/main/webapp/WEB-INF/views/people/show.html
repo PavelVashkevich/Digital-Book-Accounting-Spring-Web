@@ -11,15 +11,22 @@
 </head>
 <body>
 
-<p th:text="${person.getFullName() + ', ' + person.getYearOfBirth()}">VALUE</p>
+<p th:text="${person.getFullName() + ', ' + #dates.format(person.getDateOfBirth(), 'dd-MM-yyyy')}">VALUE</p>
+<p th:text="'Contact info: '">VALUE</p>
+<p th:text="${person.getEmail()}">VALUE</p>
+<p th:text="${person.getContactPhone()}">VALUE</p>
 <div th:if="${not #lists.isEmpty(books)}">
     <hr/>
     <h3>Books:</h3>
-    <div th:each="book : ${books}" >
-        <p class="small" th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYearOfPublish()}">VALUE</p>
+    <div th:each="book : ${books}">
+        <p class="small" th:if="${book.isOverdue()}" th:style="'color: red'"
+           th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYearOfPublish()}">VALUE</p>
+        <p class="small" th:if="${not book.isOverdue()}"
+           th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYearOfPublish()}">
+            VALUE</p>
     </div>
 </div>
-
+<!--<div th:if="${#lists.isEmpty(books)}">-->
 <div th:if="${#lists.isEmpty(books)}">
     <p>Person has not borrowed any book yet.</p>
 </div>

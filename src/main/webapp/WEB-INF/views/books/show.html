@@ -19,7 +19,7 @@
     <p>This book is free. Who would like to borrow the book?</p>
     <form th:method="PATCH" th:action="@{/books/{id}/assign(id=${book.getId()})}">
         <label for="person">Choose person:</label>
-        <select th:object="${person}" th:field="*{id}" id="person">
+        <select th:object="${person}" th:field="*{id}" id="person" required>
             <option th:each="person : ${people}" th:value="${person.getId()}"
                     th:text="${person.getFullName()}"></option>
         </select>

@@ -1,5 +1,7 @@
 package com.github.pavelvashkevich.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,9 +11,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.util.Calendar;
 import java.util.Objects;
 
 @Entity
@@ -30,13 +37,24 @@ public class Book {
     @Size(min = 2, max = 100, message = "Length of author's name should be between 2 and 100 characters.")
     @Column(name = "author")
     private String author;
-    @Positive(message = "Year of public should be positive number.")
+
     @Column(name = "year_of_publish")
+    @Positive(message = "Year of public should be positive number.")
+    @Past(message = "Year of publish can not be set to the future")
     private int yearOfPublish;
+
+    @Column(name = "borrowed_time")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Calendar borrowedTime;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "person_id", referencedColumnName = "person_id")
     private Person patron;
+
+    @Transient
+    private boolean isOverdue;
+
 
     public Book(String name, String author, int yearOfPublish) {
         this.name = name;
@@ -108,5 +126,21 @@ public class Book {
                 ", author='" + author + '\'' +
                 ", yearOfPublish=" + yearOfPublish +
                 '}';
+    }
+
+    public Calendar getBorrowedTime() {
+        return borrowedTime;
+    }
+
+    public void setBorrowedTime(Calendar borrowedTime) {
+        this.borrowedTime = borrowedTime;
+    }
+
+    public boolean isOverdue() {
+        return isOverdue;
+    }
+
+    public void setOverdue(boolean overdue) {
+        isOverdue = overdue;
     }
 }

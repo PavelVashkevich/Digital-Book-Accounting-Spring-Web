@@ -1,8 +1,9 @@
 package com.github.pavelvashkevich.controllers;
 
-import com.github.pavelvashkevich.model.Book;
 import com.github.pavelvashkevich.model.Person;
 import com.github.pavelvashkevich.services.PeopleService;
+import com.github.pavelvashkevich.validators.PersonDateOfBirthValidator;
+import com.github.pavelvashkevich.validators.PersonEmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,17 +11,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Controller
 @RequestMapping("/people")
 public class PeopleController {
 
     private final PeopleService peopleService;
+    private final PersonEmailValidator personEmailValidator;
+    private final PersonDateOfBirthValidator personDateOfBirthValidator;
 
     @Autowired
-    public PeopleController(PeopleService peopleService) {
+    public PeopleController(PeopleService peopleService, PersonEmailValidator personValidator, PersonDateOfBirthValidator personDateOfBirthValidator) {
         this.peopleService = peopleService;
+        this.personEmailValidator = personValidator;
+        this.personDateOfBirthValidator = personDateOfBirthValidator;
     }
 
     @GetMapping
@@ -36,6 +40,8 @@ public class PeopleController {
 
     @PostMapping
     public String createPerson(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult) {
+        personEmailValidator.validate(person, bindingResult);
+        personDateOfBirthValidator.validate(person, bindingResult);
         if (bindingResult.hasErrors()) {
             return "people/new";
         }
@@ -45,10 +51,8 @@ public class PeopleController {
 
     @GetMapping("/{id}")
     public String showPerson(@PathVariable("id") int id, Model model) {
-        Person person = peopleService.findOne(id);
-        model.addAttribute("person", person);
-        List<Book> books = peopleService.findPersonBooks(id);
-        model.addAttribute("books", books);
+        model.addAttribute("person", peopleService.findOne(id));
+        model.addAttribute("books", peopleService.findPersonBooks(id));
         return "people/show";
     }
 
@@ -61,6 +65,8 @@ public class PeopleController {
     @PatchMapping("/{id}")
     public String updatePerson(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult,
                                @PathVariable("id") int id) {
+        personEmailValidator.validate(person, bindingResult);
+        personDateOfBirthValidator.validate(person, bindingResult);
         if (bindingResult.hasErrors()) {
             return "people/edit";
         }

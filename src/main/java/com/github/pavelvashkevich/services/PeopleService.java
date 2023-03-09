@@ -3,6 +3,7 @@ package com.github.pavelvashkevich.services;
 import com.github.pavelvashkevich.model.Book;
 import com.github.pavelvashkevich.model.Person;
 import com.github.pavelvashkevich.repositories.PeopleRepository;
+import com.github.pavelvashkevich.util.OverdueChecker;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,12 @@ import java.util.Optional;
 public class PeopleService {
 
     private final PeopleRepository peopleRepository;
+    private final OverdueChecker overdueChecker;
 
     @Autowired
-    public PeopleService(PeopleRepository peopleRepository) {
+    public PeopleService(PeopleRepository peopleRepository, OverdueChecker overdueChecker) {
         this.peopleRepository = peopleRepository;
+        this.overdueChecker = overdueChecker;
     }
 
     public List<Person> findAll() {
@@ -52,8 +55,14 @@ public class PeopleService {
         Optional<Person> person = peopleRepository.findById(id);
         if (person.isPresent()) {
             Hibernate.initialize(person.get().getBooks());
-            return person.get().getBooks();
+            List<Book> books = person.get().getBooks();
+            checkOverdueBooks(books);
+            return books;
         }
         return Collections.emptyList();
+    }
+
+    private void checkOverdueBooks(List<Book> booksToCheck) {
+        overdueChecker.checkBooksOverdue(booksToCheck);
     }
 }

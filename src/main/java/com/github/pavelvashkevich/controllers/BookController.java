@@ -59,6 +59,14 @@ public class BookController {
         return "books/new";
     }
 
+    @GetMapping("/search")
+    public String searchBook(@RequestParam(required = false, name = "pattern") String pattern, Model model) {
+        if (!Objects.isNull(pattern))
+            model.addAttribute("books", booksService.findByNameStartingWith(pattern));
+        return "books/search";
+    }
+
+
     @PostMapping
     public String saveBook(@ModelAttribute("book") @Valid Book book, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

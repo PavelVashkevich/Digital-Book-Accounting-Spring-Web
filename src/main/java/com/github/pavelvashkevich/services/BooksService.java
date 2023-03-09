@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,12 +40,16 @@ public class BooksService {
 
     public List<Book> findAllSortByYearOfPublish(int page, int booksPerPage) {
         return booksRepository.findAll(
-                PageRequest.of(page, booksPerPage,Sort.by(YEAR_OF_PUBLISH_PROP_NAME))).getContent();
+                PageRequest.of(page, booksPerPage, Sort.by(YEAR_OF_PUBLISH_PROP_NAME))).getContent();
     }
 
     public Book findOne(int id) {
         Optional<Book> book = booksRepository.findById(id);
         return book.orElse(null);
+    }
+
+    public List<Book> findByNameStartingWith(String pattern) {
+        return booksRepository.findByNameStartingWith(pattern);
     }
 
     @Transactional
@@ -71,7 +76,11 @@ public class BooksService {
     @Transactional
     public void assignPatron(int id, Person patron) {
         Optional<Book> bookToAssignPatron = booksRepository.findById(id);
-        bookToAssignPatron.ifPresent(book -> book.setPatron(patron));
+        bookToAssignPatron.ifPresent(book ->
+        {
+            book.setPatron(patron);
+            book.setBorrowedTime(Calendar.getInstance());
+        });
     }
 
     @Transactional

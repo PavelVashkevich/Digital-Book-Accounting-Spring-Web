@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Book</title>
+    <style>
+        hr {
+            border: none;
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <form th:action="@{http://localhost:8080/books/search}" th:method="GET">
+        <label for="pattern">Enter the title of the book you want to find: </label>
+        <input type="text" id="pattern" name="pattern" required>
+        <br>
+        <input type="submit" value="search">
+    </form>
+
+    <div th:if="${#lists.isEmpty(books) and books != null}">
+        <p>The book was not found.</p>
+    </div>
+
+    <div th:if="${not #lists.isEmpty(books)}">
+        <div th:each="book : ${books}">
+            <p class="small" th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYearOfPublish()}">VALUE</p>
+            <p th:if="${book.getPatron() != null}" th:text="${book.getPatron().getFullName() + ' has the book now'}">VALUE</p>
+            <hr>
+        </div>
+    </div>
+</body>
+</html>
